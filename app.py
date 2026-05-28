@@ -173,7 +173,7 @@ if user_menu=='Predictions':
     # Sport List
     sport_list = df['Sport'].dropna().unique().tolist()
     sport_list.sort()
-    sport_list.insert(0, 'none')
+    sport_list.insert(0, 'Overall')
 
     # Dropdowns
     selected_year = st.selectbox("Select Year", year)
@@ -183,21 +183,15 @@ if user_menu=='Predictions':
     # Submit Button
     if st.button('Submit'):
 
-        if selected_year == 'none' and selected_country == 'none' and selected_sport == 'none':
-            st.warning("⚠️ Please fill all fields.")
-
-        elif selected_year == 'none':
+        if selected_year == 'none':
             st.warning("⚠️ Please fill the field: Year")
 
         elif selected_country == 'none':
             st.warning("⚠️ Please fill the field: Country")
 
-        elif selected_sport == 'none':
-            st.warning("⚠️ Please fill the field: Sport")
-
         else:
 
-            # Prediction Function Call
+            # Prediction Function
             x = prediction(
                 df,
                 selected_country,
@@ -208,14 +202,24 @@ if user_menu=='Predictions':
             if x is None:
 
                 st.error(
-                    f"🎯 No prediction available for {selected_country} in {selected_sport} Olympics."
+                    f"🎯 No prediction available for {selected_country}."
                 )
 
             else:
 
-                st.success(
-                    f"🎯 {selected_country} is predicted to win {x['Total']} medals in {selected_sport} during {selected_year} Olympics."
-                )
+                # Overall Prediction
+                if selected_sport == 'Overall':
+
+                    st.success(
+                        f"🎯 {selected_country} is predicted to win {x['Total']} total medals in {selected_year} Olympics."
+                    )
+
+                # Sport-wise Prediction
+                else:
+
+                    st.success(
+                        f"🎯 {selected_country} is predicted to win {x['Total']} medals in {selected_sport} during {selected_year} Olympics."
+                    )
 
                 st.markdown(f"""
                 - 🥇 **Gold**: {x['Gold']}
