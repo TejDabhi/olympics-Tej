@@ -163,20 +163,24 @@ if user_menu=='Athlete-wise Analysis':
     st.pyplot(fig)
 
 if user_menu=='Predictions':
+
     st.title('Predict how many Medals A country will win')
 
-    year=['none',2028,2032,2036]
+    year = ['none', 2028, 2032, 2036]
+
     country = helper.country_year_list_prediction(df)
 
-    # Sport list
+    # Sport List
     sport_list = df['Sport'].dropna().unique().tolist()
     sport_list.sort()
     sport_list.insert(0, 'none')
 
+    # Dropdowns
     selected_year = st.selectbox("Select Year", year)
     selected_country = st.selectbox("Select Country", country)
     selected_sport = st.selectbox("Select Sport", sport_list)
 
+    # Submit Button
     if st.button('Submit'):
 
         if selected_year == 'none' and selected_country == 'none' and selected_sport == 'none':
@@ -192,13 +196,23 @@ if user_menu=='Predictions':
             st.warning("⚠️ Please fill the field: Sport")
 
         else:
-            # pass sport also
-            x = prediction(df, selected_country, selected_year, selected_sport)
+
+            # Prediction Function Call
+            x = prediction(
+                df,
+                selected_country,
+                selected_year,
+                selected_sport
+            )
 
             if x is None:
-                st.error(f"🎯 No prediction available for {selected_country} in {selected_sport} ({selected_year}) Olympics.")
+
+                st.error(
+                    f"🎯 No prediction available for {selected_country} in {selected_sport} Olympics."
+                )
 
             else:
+
                 st.success(
                     f"🎯 {selected_country} is predicted to win {x['Total']} medals in {selected_sport} during {selected_year} Olympics."
                 )
@@ -207,5 +221,4 @@ if user_menu=='Predictions':
                 - 🥇 **Gold**: {x['Gold']}
                 - 🥈 **Silver**: {x['Silver']}
                 - 🥉 **Bronze**: {x['Bronze']}
-                """)
                 """)
