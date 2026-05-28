@@ -164,28 +164,48 @@ if user_menu=='Athlete-wise Analysis':
 
 if user_menu=='Predictions':
     st.title('Predict how many Medals A country will win')
+
     year=['none',2028,2032,2036]
     country = helper.country_year_list_prediction(df)
+
+    # Sport list
+    sport_list = df['Sport'].dropna().unique().tolist()
+    sport_list.sort()
+    sport_list.insert(0, 'none')
+
     selected_year = st.selectbox("Select Year", year)
     selected_country = st.selectbox("Select Country", country)
+    selected_sport = st.selectbox("Select Sport", sport_list)
+
     if st.button('Submit'):
-        if selected_year == 'none' and selected_country == 'none':
-            st.warning("⚠️ Please fill in both fields: Year and Country.")
+
+        if selected_year == 'none' and selected_country == 'none' and selected_sport == 'none':
+            st.warning("⚠️ Please fill all fields.")
+
         elif selected_year == 'none':
             st.warning("⚠️ Please fill the field: Year")
+
         elif selected_country == 'none':
             st.warning("⚠️ Please fill the field: Country")
+
+        elif selected_sport == 'none':
+            st.warning("⚠️ Please fill the field: Sport")
+
         else:
-            x = prediction(df, selected_country, selected_year)
+            # pass sport also
+            x = prediction(df, selected_country, selected_year, selected_sport)
 
             if x is None:
-                st.error(f"🎯 {selected_country} has no medals in the {selected_year} Olympics.")
+                st.error(f"🎯 No prediction available for {selected_country} in {selected_sport} ({selected_year}) Olympics.")
+
             else:
                 st.success(
-                    f"🎯 {selected_country} is predicted to win a total of {x['Total']} medals in the {selected_year} Olympics."
+                    f"🎯 {selected_country} is predicted to win {x['Total']} medals in {selected_sport} during {selected_year} Olympics."
                 )
+
                 st.markdown(f"""
                 - 🥇 **Gold**: {x['Gold']}
                 - 🥈 **Silver**: {x['Silver']}
                 - 🥉 **Bronze**: {x['Bronze']}
+                """)
                 """)
