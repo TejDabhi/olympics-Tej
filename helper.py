@@ -136,11 +136,15 @@ def country_year_list_prediction(df):
 
 
 
-def prediction(df, selected_country, selected_year):
-    # Filter data for the selected country, Summer season, and valid medals
+from sklearn.linear_model import LinearRegression
+
+def prediction(df, selected_country, selected_year, selected_sport):
+
+    # Filter data
     df_country = df[
         (df["region"] == selected_country) &
         (df["Season"] == "Summer") &
+        (df["Sport"] == selected_sport) &
         (df["Medal"].notna())
     ]
 
@@ -149,15 +153,21 @@ def prediction(df, selected_country, selected_year):
 
     results = {}
 
-    # Loop through each medal type
+    # Medal prediction
     for medal_type in ["Gold", "Silver", "Bronze"]:
-        df_medal = df_country[df_country["Medal"] == medal_type]
 
-        # Drop duplicates to avoid team duplicates
-        df_unique = df_medal.drop_duplicates(subset=["Year", "Event", "Medal"])
+        df_medal = df_country[
+            df_country["Medal"] == medal_type
+        ]
+
+        # Remove duplicate medals
+        df_unique = df_medal.drop_duplicates(
+            subset=["Year", "Event", "Medal"]
+        )
 
         medal_counts = (
-            df_unique.groupby("Year").size()
+            df_unique.groupby("Year")
+            .size()
             .reset_index(name="Medal_Count")
             .sort_values("Year")
         )
@@ -171,11 +181,22 @@ def prediction(df, selected_country, selected_year):
 
         model = LinearRegression()
         model.fit(x, y)
+
         predicted = model.predict([[selected_year]])[0]
-        results[medal_type] = max(0, int(round(predicted)))  # ensure non-negative int
+
+        results[medal_type] = max(
+            0,
+            int(round(predicted))
+        )
 
     # Total medals
-    results["Total"] = sum(results.values())
+    results["Total"] = (
+        results["Gold"] +
+        results["Silver"] +
+        results["Bronze"]
+    )
+
+    return results
 
     return results
 
